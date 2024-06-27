@@ -21,6 +21,7 @@ url = {
 username = ''
 password = ''
 
+
 def WebDriver_Init(url: str, silent: bool = False, timeout: int = 3) -> WebDriver:
     chrome_options = Options()
     if silent:
@@ -34,6 +35,7 @@ def WebDriver_Init(url: str, silent: bool = False, timeout: int = 3) -> WebDrive
     # time.sleep(timeout)
     return driver
 
+
 def login(driver: WebDriver, username: str or int, password: str, autorefresh: bool = False) -> list[dict]:
     input_username = driver.find_element(By.CSS_SELECTOR, "input[id='un']")
     input_password = driver.find_element(By.CSS_SELECTOR, "input[id='pd']")
@@ -45,8 +47,11 @@ def login(driver: WebDriver, username: str or int, password: str, autorefresh: b
 
     # 密码错误的情况：
     try:
-        error = driver.find_element(By.ID, 'errormsg')
-        print(error.text)
+        if username != '' and password != '':
+            error = driver.find_element(By.ID, 'errormsg')
+            print(error.text)
+        else:
+            print('用户名和密码不能为空。')
         input_username = driver.find_element(By.CSS_SELECTOR, "input[id='un']")
         input_password = driver.find_element(By.CSS_SELECTOR, "input[id='pd']")
         input_username.clear()

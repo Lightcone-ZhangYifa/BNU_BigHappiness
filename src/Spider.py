@@ -148,14 +148,4 @@ def get_all_items(driver: WebDriver) -> None:
 def get_recent_data():
     pass
 
-def main():
-    print('trying to login digital DCP...')
-    driver = BNU.WebDriver_Init(url=BNU.url['京师大福']
-                                , silent=True
-                                )
-    BNU.login(driver=driver, username=BNU.username, password=BNU.password)
-    generateCSV_title()
-    get_all_items(driver)
-    driver.quit()
 
-main()
