@@ -144,7 +144,7 @@ def read_config() -> None:
     if os.path.exists('../tmp/conf.dat'):
         with open('../tmp/conf.dat', 'rt', encoding='utf-8') as f:
             current_page, current_item = [int(i) for i in f.read().split()]
-        print(f'[Config]: start from page{current_page}, item{current_item}.')
+        print(f'[Config]: start from page{current_page}, item{current_item+1}.')
     else:
         print('[Notice]: cannot find configuration file.')
         with open('../tmp/conf.dat', 'wt', encoding='utf-8') as f:

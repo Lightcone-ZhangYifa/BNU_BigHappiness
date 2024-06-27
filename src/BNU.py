@@ -1,4 +1,5 @@
 import glob
+import os.path
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -36,6 +37,23 @@ def WebDriver_Init(url: str, silent: bool = False, timeout: int = 3) -> WebDrive
     return driver
 
 
+def write_info(username: str, password: str) -> None:
+    with open('../tmp/info.dat', 'wt', encoding='utf-8') as f:
+        f.write(username + ' ' + password)
+
+
+def read_info() -> None:
+    global username, password
+    if os.path.exists('../tmp/info.dat'):
+        with open('../tmp/info.dat', 'rt', encoding='utf-8') as f:
+            username, password = f.read().split()
+        print('load login info successfully.')
+    else:
+        print('[Notice]: no login info found.')
+        with open('../tmp/info.dat', 'wt', encoding='utf-8') as f:
+            f.write('0 0')
+
+
 def login(driver: WebDriver, username: str or int, password: str, autorefresh: bool = False) -> list[dict]:
     input_username = driver.find_element(By.CSS_SELECTOR, "input[id='un']")
     input_password = driver.find_element(By.CSS_SELECTOR, "input[id='pd']")
@@ -61,6 +79,7 @@ def login(driver: WebDriver, username: str or int, password: str, autorefresh: b
         login(driver, username, password, autorefresh)
     except NoSuchElementException:
         print('Login successfully')
+        write_info(username, password)
         cookies = driver.get_cookies()
         if autorefresh:
             time.sleep(5)
