@@ -12,6 +12,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
 import time
 from bs4 import BeautifulSoup
+import theme
 
 url = {
     '教务管理': 'https://onevpn.bnu.edu.cn/http/77726476706e69737468656265737421f3f652d2253e7d1e7b0c9ce29b5b/cas/login?service=http%3A%2F%2Fzyfw.bnu.edu.cn%2F',
@@ -47,9 +48,9 @@ def read_info() -> None:
     if os.path.exists('../tmp/info.dat'):
         with open('../tmp/info.dat', 'rt', encoding='utf-8') as f:
             username, password = f.read().split()
-        print('load login info successfully.')
+        theme.Successfully('load login info successfully.')
     else:
-        print('[Notice]: no login info found.')
+        theme.Notice('no login info found.')
         with open('../tmp/info.dat', 'wt', encoding='utf-8') as f:
             f.write('0 0')
 
@@ -67,9 +68,9 @@ def login(driver: WebDriver, username: str or int, password: str, autorefresh: b
     try:
         if username != '' and password != '':
             error = driver.find_element(By.ID, 'errormsg')
-            print(error.text)
+            theme.Error(error.text)
         else:
-            print('用户名和密码不能为空。')
+            theme.Error('用户名和密码不能为空。')
         input_username = driver.find_element(By.CSS_SELECTOR, "input[id='un']")
         input_password = driver.find_element(By.CSS_SELECTOR, "input[id='pd']")
         input_username.clear()
@@ -78,7 +79,7 @@ def login(driver: WebDriver, username: str or int, password: str, autorefresh: b
         password = input('Enter password:')
         login(driver, username, password, autorefresh)
     except NoSuchElementException:
-        print('Login successfully')
+        theme.Successfully('Login successfully')
         write_info(username, password)
         cookies = driver.get_cookies()
         if autorefresh:

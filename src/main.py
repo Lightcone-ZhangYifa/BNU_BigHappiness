@@ -1,10 +1,10 @@
 import Spider
 import BNU
-
+import theme
 def main():
-    print('reading configuration from file...')
+    theme.Processing('reading configuration from file...')
     Spider.read_config()
-    print('trying to login digital DCP...')
+    theme.Processing('trying to login digital DCP...')
     driver = BNU.WebDriver_Init(url=BNU.url['京师大福']
                                 , silent=True
                                 )
@@ -13,6 +13,7 @@ def main():
     if Spider.current_page == 1 and Spider.current_item == 0:
         Spider.generateCSV_title()
     Spider.get_all_items(driver)
+    theme.Successfully('get all items successfully.')
     driver.quit()
 
 main()
