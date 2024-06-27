@@ -1,7 +1,6 @@
 import Spider
 import BNU
 
-
 def main():
     print('reading configuration from file...')
     Spider.read_config()
@@ -15,6 +14,5 @@ def main():
         Spider.generateCSV_title()
     Spider.get_all_items(driver)
     driver.quit()
-
 
 main()

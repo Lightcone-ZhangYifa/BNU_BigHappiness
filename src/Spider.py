@@ -106,7 +106,7 @@ def get_page_cnt(driver: WebDriver) -> int:
 
 def generateCSV(items: list) -> None:
     labels = keys
-    with open('../res/raw_data.csv', mode='wt', encoding='gbk') as f:
+    with open('../res/raw_data.csv', mode='wt', encoding='utf-8') as f:
         f.write(','.join(labels))
         for item in items:
             f.write(','.join([item[label] for label in labels]))
@@ -114,7 +114,7 @@ def generateCSV(items: list) -> None:
 
 def generateCSV_title() -> None:
     labels = keys
-    with open('../res/raw_data.csv', mode='wt', encoding='gbk') as f:
+    with open('../res/raw_data.csv', mode='wt', encoding='utf-8') as f:
         f.write(','.join(labels) + '\n')
 
 
@@ -122,9 +122,11 @@ def generateCSV_append_item(item: dict) -> None:
     labels = keys
     for i in item:
         item[i] = item[i].replace('\n', '')
+        item[i] = item[i].replace(',', '，')
+
     item['visit'] = item['visit'][4:]
     item['handler'] = item['handler'][5:]
-    with open('../res/raw_data.csv', mode='a', encoding='gbk') as f:
+    with open('../res/raw_data.csv', mode='a', encoding='utf-8') as f:
         f.write(','.join([item[label] for label in labels]) + '\n')
 
 
