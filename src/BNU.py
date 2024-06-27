@@ -18,8 +18,8 @@ url = {
     '京师大福': 'https://onevpn.bnu.edu.cn/https/77726476706e69737468656265737421fff94494263c641e7c069ce29d51367b9b9e/tp_fp/view?m=fp#act=fp/library/show'
 }
 
-username = '202311998186'
-password = '@Yif123456'
+username = ''
+password = ''
 
 def WebDriver_Init(url: str, silent: bool = False, timeout: int = 3) -> WebDriver:
     chrome_options = Options()
