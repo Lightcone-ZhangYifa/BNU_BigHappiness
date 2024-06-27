@@ -134,7 +134,7 @@ def generateCSV_append_item(item: dict) -> None:
 
 def toPage(driver: WebDriver, page: int) -> None:
     # driver.close()
-    theme.Status('loading target url :' + page_url + str(page))
+    # theme.Status('loading target url :' + page_url + str(page))
     driver.get(url=(page_url + str(page)))
 
 
@@ -156,15 +156,22 @@ def read_config() -> None:
         theme.Notice('create default configuration file successfully.')
 
 
+def brief_dict(d: dict, max_len: int = 20) -> str:
+    return ', '.join([(str(i).strip()[:max_len]
+                       + ('...' if max_len < len(str(i)) else '')
+                       + ':'
+                       + str(d[i]).strip()[:max_len]
+                       + ('...' if max_len < len(str(d[i])) else '')
+                       ) for i in d])
+
+
 def get_all_items(driver: WebDriver) -> None:
     global current_page, current_item
     page_cnt = get_page_cnt(driver)
     theme.Data('page_cnt =' + str(page_cnt))
     for i in range(current_page, page_cnt + 1):
         toPage(driver, page=i)
-
         current_page = i
-
         theme.Status('current page =' + str(i))
 
         # input('continue...')
@@ -179,7 +186,9 @@ def get_all_items(driver: WebDriver) -> None:
                         generateCSV_append_item(single_item)
                         current_item = (j + 1) % len(item_list)
                         write_config(current_page, current_item)
-                        theme.Data(f'Add page{i} item{j + 1} sussceefully :{single_item}')
+                        theme.Data(f'Add page{i} item{j + 1} sussceefully :')
+                        theme.Content(brief_dict(single_item))
+
                         break
                     else:
                         theme.Processing('retrying...')
@@ -193,7 +202,8 @@ def get_all_items(driver: WebDriver) -> None:
                         generateCSV_append_item(single_item)
                         current_item = (j + 1) % len(item_list)
                         write_config(current_page, current_item)
-                        theme.Data(f'Add page{i} item{j + 1} sussceefully :{single_item}')
+                        theme.Data(f'Add page{i} item{j + 1} sussceefully :')
+                        theme.Content(brief_dict(single_item))
                         break
                     else:
                         theme.Processing('retrying...')
