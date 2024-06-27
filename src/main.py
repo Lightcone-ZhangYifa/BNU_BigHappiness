@@ -1,6 +1,8 @@
 import Spider
 import BNU
 def main():
+    print('reading configuration from file...')
+    Spider.read_config()
     print('trying to login digital DCP...')
     driver = BNU.WebDriver_Init(url=BNU.url['京师大福']
                                 , silent=True

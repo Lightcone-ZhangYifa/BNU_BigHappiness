@@ -1,4 +1,6 @@
 import glob
+import os.path
+
 from selenium import webdriver
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -17,36 +19,43 @@ max_page = -1
 earliest = (2024, 5, 1)
 temp_folder = '../temp/'
 
+current_page = 1
+current_item = 0
+
 page_url = 'https://onevpn.bnu.edu.cn/https/77726476706e69737468656265737421fff94494263c641e7c069ce29d51367b9b9e/tp_fp/view?m=fp#act=fp/library/show&pn='
 keys = 'time', 'title', 'visit', 'handler', 'content'
 
-def find_with_ExplicitWait(driver,by:str,value,timeout:int=10):
+
+def find_with_ExplicitWait(driver, by: str, value, timeout: int = 10):
     return WebDriverWait(driver, timeout=timeout).until(
         EC.presence_of_element_located((by, value))
     )
 
-def find_all_elements_with_ExplicitWait(driver,by:str,value,timeout:int=10):
+
+def find_all_elements_with_ExplicitWait(driver, by: str, value, timeout: int = 10):
     return WebDriverWait(driver, timeout=timeout).until(
         # EC.presence_of_all_elements_located((by, value))
-        lambda x:x.find_elements(by,value)
+        lambda x: x.find_elements(by, value)
     )
     # time.sleep(3)
     # return driver.find_elements(by,value)
 
-def get_single_item(driver: WebDriver, item: WebElement, filter=lambda x: None,timeout:int=10) -> dict:
+
+def get_single_item(driver: WebDriver, item: WebElement, filter=lambda x: None, timeout: int = 10) -> dict:
     brief_title = item.find_element(By.CSS_SELECTOR, "div[class='purchase-info-tit push-down-5']")
-    brief_infos = item.find_element(By.CSS_SELECTOR, "div[class='purchase-info-02 push-down-15']").find_elements(By.TAG_NAME,'p')
+    brief_infos = item.find_element(By.CSS_SELECTOR, "div[class='purchase-info-02 push-down-15']").find_elements(
+        By.TAG_NAME, 'p')
     brief_title.click()
     try:
         # popup = WebDriverWait(driver, timeout=timeout).until(
         #     EC.presence_of_element_located((By.CSS_SELECTOR, "div[class='responsive-padding-box form-horizontal']"))
         # )
-        popup = find_with_ExplicitWait(driver,By.CSS_SELECTOR, "div[class='responsive-padding-box form-horizontal']")
+        popup = find_with_ExplicitWait(driver, By.CSS_SELECTOR, "div[class='responsive-padding-box form-horizontal']")
 
         # popup_elements = popup.find_elements(By.TAG_NAME,'div')
-        popup_elements = find_all_elements_with_ExplicitWait(popup,By.TAG_NAME,'div')
+        popup_elements = find_all_elements_with_ExplicitWait(popup, By.TAG_NAME, 'div')
         title = popup_elements[0].text
-        popup_infos = popup_elements[1].find_elements(By.TAG_NAME,'p')
+        popup_infos = popup_elements[1].find_elements(By.TAG_NAME, 'p')
         content = popup_elements[2].text
         # popup = driver.find_element(By.CSS_SELECTOR, "div[class='responsive-padding-box form-horizontal']")
         # for i in popup_elements:
@@ -65,7 +74,7 @@ def get_single_item(driver: WebDriver, item: WebElement, filter=lambda x: None,t
         button_close.click()
         return info
     except:
-        print(brief_title.text+'的内容没加载成功！')
+        print(brief_title.text + '的内容没加载成功！')
         return {}
 
     # popup = driver.find_element(By.CSS_SELECTOR,"div[class='responsive-padding-box form-horizontal']")
@@ -85,6 +94,7 @@ def get_single_item(driver: WebDriver, item: WebElement, filter=lambda x: None,t
     # button_close.click()
     # return info
 
+
 def get_page_cnt(driver: WebDriver) -> int:
     try:
         return int(driver.find_element(By.XPATH, '//*[@id="layer_page_pager_list"]/div[2]/span[3]').text)
@@ -101,18 +111,22 @@ def generateCSV(items: list) -> None:
         for item in items:
             f.write(','.join([item[label] for label in labels]))
 
+
 def generateCSV_title() -> None:
     labels = keys
     with open('../res/raw_data.csv', mode='wt', encoding='gbk') as f:
-        f.write(','.join(labels)+'\n')
+        f.write(','.join(labels) + '\n')
+
+
 def generateCSV_append_item(item: dict) -> None:
     labels = keys
     for i in item:
-        item[i] = item[i].replace('\n','')
+        item[i] = item[i].replace('\n', '')
     item['visit'] = item['visit'][4:]
     item['handler'] = item['handler'][5:]
     with open('../res/raw_data.csv', mode='a', encoding='gbk') as f:
-        f.write(','.join([item[label] for label in labels])+'\n')
+        f.write(','.join([item[label] for label in labels]) + '\n')
+
 
 def toPage(driver: WebDriver, page: int) -> None:
     # driver.close()
@@ -120,32 +134,65 @@ def toPage(driver: WebDriver, page: int) -> None:
     driver.get(url=(page_url + str(page)))
 
 
+def write_config(current_page: int, current_item: int) -> None:
+    with open('../tmp/conf.dat', 'wt', encoding='utf-8') as f:
+        f.write(str(current_page) + ' ' + str(current_item))
+
+
+def read_config() -> None:
+    global current_page, current_item
+    if os.path.exists('../tmp/conf.dat'):
+        with open('../tmp/conf.dat', 'rt', encoding='utf-8') as f:
+            current_page, current_item = [int(i) for i in f.read().split()]
+        print(f'[Config]: start from page{current_page}, item{current_item}.')
+    else:
+        print('[Notice]: cannot find configuration file.')
+        with open('../tmp/conf.dat', 'wt', encoding='utf-8') as f:
+            f.write('1 0')
+        print('[Notice]: create default configuration file successfully.')
+
+
 def get_all_items(driver: WebDriver) -> None:
+    global current_page, current_item
     page_cnt = get_page_cnt(driver)
     print('page_cnt =', page_cnt)
-    for i in range(1, page_cnt + 1):
+    for i in range(current_page, page_cnt + 1):
         toPage(driver, page=i)
+
+        current_page = i
+
         print('current page =', i)
         # input('continue...')
         item_list = driver.find_elements(By.CSS_SELECTOR, "div[class='purchase-con push-down-20']")
-        for j in range(len(item_list)):
-            # input(f'{j+1}: continue...')
-            # print(item.text)
-            while True:
-                driver.refresh()
-                item_list = driver.find_elements(By.CSS_SELECTOR, "div[class='purchase-con push-down-20']")
-                single_item = get_single_item(driver, item_list[j])
-                if single_item:
-                    generateCSV_append_item(single_item)
-                    # dataset.append(single_item)
-                    print(f'Add item{j+1} sussceefully :{single_item}')
-                    break
-                else:
-                    print('retrying...')
+        if current_item != 0:
+            for j in range(current_item, len(item_list)):
+                while True:
                     driver.refresh()
                     item_list = driver.find_elements(By.CSS_SELECTOR, "div[class='purchase-con push-down-20']")
+                    single_item = get_single_item(driver, item_list[j])
+                    if single_item:
+                        generateCSV_append_item(single_item)
+                        current_item = (j + 1) % len(item_list)
+                        write_config(current_page, current_item)
+                        print(f'Add page{i} item{j + 1} sussceefully :{single_item}')
+                        break
+                    else:
+                        print('retrying...')
+        else:
+            for j in range(len(item_list)):
+                while True:
+                    driver.refresh()
+                    item_list = driver.find_elements(By.CSS_SELECTOR, "div[class='purchase-con push-down-20']")
+                    single_item = get_single_item(driver, item_list[j])
+                    if single_item:
+                        generateCSV_append_item(single_item)
+                        current_item = (j + 1) % len(item_list)
+                        write_config(current_page, current_item)
+                        print(f'Add page{i} item{j + 1} sussceefully :{single_item}')
+                        break
+                    else:
+                        print('retrying...')
+
 
 def get_recent_data():
     pass
-
-
