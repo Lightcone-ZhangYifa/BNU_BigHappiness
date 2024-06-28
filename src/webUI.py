@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template
 
 app = Flask(__name__)
@@ -65,4 +67,5 @@ def apply_caching(response):
 
 
 if __name__ == '__main__':
+    os.system('start http://127.0.0.1:5000')
     app.run(debug=True)

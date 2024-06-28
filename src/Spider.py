@@ -23,7 +23,7 @@ import theme
 
 current_page = 1
 current_item = 0
-remove_prifix = False
+remove_prifix = True
 page_url = 'https://onevpn.bnu.edu.cn/https/77726476706e69737468656265737421fff94494263c641e7c069ce29d51367b9b9e/tp_fp/view?m=fp#act=fp/library/show&pn='
 keys = 'time', 'title', 'visit', 'handler', 'content'
 

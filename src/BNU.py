@@ -97,7 +97,7 @@ def login(driver: WebDriver, username: str or int, password: str, autorefresh: b
         write_info(username, password)
         cookies = driver.get_cookies()
         if autorefresh:
-            time.sleep(5)
+            time.sleep(3)
             driver.refresh()
         return cookies
 
