@@ -1,6 +1,7 @@
 import Spider
 import BNU
 import theme
+
 def main():
     theme.Processing('reading configuration from file...')
     Spider.read_config()
