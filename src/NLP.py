@@ -56,13 +56,16 @@ os.system('cls')
 while True:
 
     query = input(Fore.LIGHTYELLOW_EX + "输入你的问题：" + Fore.RESET)
-    res,ref = rag.stream(query
-                     # , topk=10
-                     )
-    print(Fore.LIGHTWHITE_EX+"[京师大福]:"+Fore.RESET)
-    for i in res:
-        print(i, end='')
-    print()
+    if(query=='cls'):
+        os.system('cls')
+    else:
+        res,ref = rag.stream(query
+                         # , topk=10
+                         )
+        print(Fore.LIGHTWHITE_EX+"[京师大福]:"+Fore.RESET)
+        for i in res:
+            print(i, end='')
+        print()
 
 # 今年是建校多少周年
 # 毕业生要注意哪些问题
