@@ -26,7 +26,7 @@ embed_model = EmbeddingsHuggingFace(model_name="../models/all-MiniLM-L6-v2")
 # embed_model = EmbeddingsHuggingFace(model_name="../models/average_word_embeddings_glove.840B.300d")
 vdb_model = FAISS
 
-with open('../res/raw_data - gbk.csv', 'r', encoding='gbk', errors='replace') as f:
+with open('../res/raw_data.csv', 'r', encoding='utf-8', errors='replace') as f:
     content = f.read()
 
 with open('../res/rag_data.txt', 'w', encoding='utf-8', errors='replace') as f:

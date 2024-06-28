@@ -23,7 +23,7 @@ import theme
 
 current_page = 1
 current_item = 0
-
+remove_prifix = False
 page_url = 'https://onevpn.bnu.edu.cn/https/77726476706e69737468656265737421fff94494263c641e7c069ce29d51367b9b9e/tp_fp/view?m=fp#act=fp/library/show&pn='
 keys = 'time', 'title', 'visit', 'handler', 'content'
 
@@ -120,14 +120,14 @@ def generateCSV_title() -> None:
         f.write(','.join(labels) + '\n')
 
 
-def generateCSV_append_item(item: dict) -> None:
+def generateCSV_append_item(item: dict, remove_prifix: bool = False) -> None:
     labels = keys
     for i in item:
         item[i] = item[i].replace('\n', '')
         item[i] = item[i].replace(',', '，')
-
-    item['visit'] = item['visit'][4:]
-    item['handler'] = item['handler'][5:]
+    if remove_prifix:
+        item['visit'] = item['visit'][4:]
+        item['handler'] = item['handler'][5:]
     with open('../res/raw_data.csv', mode='a', encoding='utf-8') as f:
         f.write(','.join([item[label] for label in labels]) + '\n')
 
@@ -165,6 +165,24 @@ def brief_dict(d: dict, max_len: int = 20) -> str:
                        ) for i in d])
 
 
+def fetch_item(driver: WebDriver, page: int, item: int) -> None:
+    global current_item,current_page
+    while True:
+        driver.refresh()
+        item_list = driver.find_elements(By.CSS_SELECTOR, "div[class='purchase-con push-down-20']")
+        single_item = get_single_item(driver, item_list[item])
+        if single_item:
+            generateCSV_append_item(single_item, remove_prifix=remove_prifix)
+            current_item = (item + 1) % len(item_list)
+            current_page = (item + 1) // len(item_list) + page
+            write_config(current_page, current_item)
+            theme.Data(f'Add page{page} item{item + 1} sussceefully :')
+            theme.Content(brief_dict(single_item))
+            break
+        else:
+            theme.Processing('retrying...')
+
+
 def get_all_items(driver: WebDriver) -> None:
     global current_page, current_item
     page_cnt = get_page_cnt(driver)
@@ -178,35 +196,37 @@ def get_all_items(driver: WebDriver) -> None:
         item_list = driver.find_elements(By.CSS_SELECTOR, "div[class='purchase-con push-down-20']")
         if current_item != 0:
             for j in range(current_item, len(item_list)):
-                while True:
-                    driver.refresh()
-                    item_list = driver.find_elements(By.CSS_SELECTOR, "div[class='purchase-con push-down-20']")
-                    single_item = get_single_item(driver, item_list[j])
-                    if single_item:
-                        generateCSV_append_item(single_item)
-                        current_item = (j + 1) % len(item_list)
-                        write_config(current_page, current_item)
-                        theme.Data(f'Add page{i} item{j + 1} sussceefully :')
-                        theme.Content(brief_dict(single_item))
-
-                        break
-                    else:
-                        theme.Processing('retrying...')
+                fetch_item(driver, i, j)
+                # while True:
+                #     driver.refresh()
+                #     item_list = driver.find_elements(By.CSS_SELECTOR, "div[class='purchase-con push-down-20']")
+                #     single_item = get_single_item(driver, item_list[j])
+                #     if single_item:
+                #         generateCSV_append_item(single_item)
+                #         current_item = (j + 1) % len(item_list)
+                #         write_config(current_page, current_item)
+                #         theme.Data(f'Add page{i} item{j + 1} sussceefully :')
+                #         theme.Content(brief_dict(single_item))
+                #
+                #         break
+                #     else:
+                #         theme.Processing('retrying...')
         else:
             for j in range(len(item_list)):
-                while True:
-                    driver.refresh()
-                    item_list = driver.find_elements(By.CSS_SELECTOR, "div[class='purchase-con push-down-20']")
-                    single_item = get_single_item(driver, item_list[j])
-                    if single_item:
-                        generateCSV_append_item(single_item)
-                        current_item = (j + 1) % len(item_list)
-                        write_config(current_page, current_item)
-                        theme.Data(f'Add page{i} item{j + 1} sussceefully :')
-                        theme.Content(brief_dict(single_item))
-                        break
-                    else:
-                        theme.Processing('retrying...')
+                fetch_item(driver, i, j)
+                # while True:
+                #     driver.refresh()
+                #     item_list = driver.find_elements(By.CSS_SELECTOR, "div[class='purchase-con push-down-20']")
+                #     single_item = get_single_item(driver, item_list[j])
+                #     if single_item:
+                #         generateCSV_append_item(single_item)
+                #         current_item = (j + 1) % len(item_list)
+                #         write_config(current_page, current_item)
+                #         theme.Data(f'Add page{i} item{j + 1} sussceefully :')
+                #         theme.Content(brief_dict(single_item))
+                #         break
+                #     else:
+                #         theme.Processing('retrying...')
 
 #
 # def get_recent_data():

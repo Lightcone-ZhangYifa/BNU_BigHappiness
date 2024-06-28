@@ -15,7 +15,8 @@ def main():
     if Spider.current_page == 1 and Spider.current_item == 0:
         Spider.generateCSV_title()
     Spider.get_all_items(driver)
-    theme.Successfully('get all items successfully.')
+    print()
+    theme.Successfully('-'*10+'[  Get all items successfully.  ]'+'-'*10)
     driver.quit()
 
 main()

@@ -32,17 +32,13 @@ def WebDriver_Init(url: str, silent: bool = False, timeout: int = 3) -> WebDrive
     chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
     # chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-
-    # 禁止打印日志到控制台
     chrome_options.add_argument("--silent")
-    # 禁止打印Chrome驱动的信息日志
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--no-sandbox")
-
-    chrome_options.add_argument('--disable-gpu')  # 上面代码就是为了将Chrome不弹出界面
-    chrome_options.add_argument('--start-maximized')  # 最大化
-    chrome_options.add_argument('--incognito')  # 无痕隐身模式
-    chrome_options.add_argument("disable-cache")  # 禁用缓存
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--start-maximized')
+    chrome_options.add_argument('--incognito')
+    chrome_options.add_argument("disable-cache")
     chrome_options.add_argument('disable-infobars')
     chrome_options.add_argument('log-level=3')
 
