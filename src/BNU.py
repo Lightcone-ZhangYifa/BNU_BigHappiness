@@ -10,6 +10,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
+from typing import Optional
 import time
 from bs4 import BeautifulSoup
 import theme
@@ -20,8 +21,8 @@ url = {
     '京师大福': 'https://onevpn.bnu.edu.cn/https/77726476706e69737468656265737421fff94494263c641e7c069ce29d51367b9b9e/tp_fp/view?m=fp#act=fp/library/show'
 }
 
-username = ''
-password = ''
+username_last = 'username'
+password_last = 'password'
 
 
 def WebDriver_Init(url: str, silent: bool = False, timeout: int = 3) -> WebDriver:
@@ -42,7 +43,6 @@ def WebDriver_Init(url: str, silent: bool = False, timeout: int = 3) -> WebDrive
     chrome_options.add_argument('disable-infobars')
     chrome_options.add_argument('log-level=3')
 
-
     driver = webdriver.Chrome(options=chrome_options)
 
     driver.implicitly_wait(timeout)
@@ -57,11 +57,17 @@ def write_info(username: str, password: str) -> None:
         f.write(username + ' ' + password)
 
 
+def write_info() -> None:
+    global username_last, password_last
+    with open('../tmp/info.dat', 'wt', encoding='utf-8') as f:
+        f.write(username_last + ' ' + password_last)
+
+
 def read_info() -> None:
-    global username, password
+    global username_last, password_last
     if os.path.exists('../tmp/info.dat'):
         with open('../tmp/info.dat', 'rt', encoding='utf-8') as f:
-            username, password = f.read().split()
+            username_last, password_last = f.read().split()
         theme.Config('load login info successfully.')
     else:
         theme.Notice('no login info found.')
@@ -69,7 +75,11 @@ def read_info() -> None:
             f.write('0 0')
 
 
-def login(driver: WebDriver, username: str or int, password: str, autorefresh: bool = False) -> list[dict]:
+def login(driver: WebDriver, username: Optional[str or int] = None, password: Optional[str] = None) -> Optional[list[dict]]:
+    global username_last, password_last
+    if not all((username, password)):
+        read_info()
+        username, password = username_last, password_last
     input_username = driver.find_element(By.CSS_SELECTOR, "input[id='un']")
     input_password = driver.find_element(By.CSS_SELECTOR, "input[id='pd']")
     input_username.send_keys(str(username))
@@ -80,7 +90,7 @@ def login(driver: WebDriver, username: str or int, password: str, autorefresh: b
 
     # 密码错误的情况：
     try:
-        if username != '' and password != '':
+        if all((username, password)):
             error = driver.find_element(By.ID, 'errormsg')
             theme.Error(error.text)
         else:
@@ -91,14 +101,15 @@ def login(driver: WebDriver, username: str or int, password: str, autorefresh: b
         input_password.clear()
         username = input('Enter username:')
         password = input('Enter password:')
-        login(driver, username, password, autorefresh)
+        login(driver, username, password)
     except NoSuchElementException:
         theme.Successfully('Login successfully')
-        write_info(username, password)
+        username_last, password_last = username, password
+        write_info()
         cookies = driver.get_cookies()
-        if autorefresh:
-            time.sleep(3)
-            driver.refresh()
+        # if autorefresh:
+        #     time.sleep(3)
+        #     driver.refresh()
         return cookies
 
 # driver = WebDriver_Init(url=url['京师大福'])
