@@ -50,6 +50,7 @@ def isActiveModule(module: WebElement) -> bool:
 
 def OnlineCourseSelection_module_select(driver: WebDriver, target: str) -> None:
     guide(driver, target='网上选课')
+
     iframe = driver.find_element(By.CSS_SELECTOR, 'iframe[id="frmDesk"]')
     driver.switch_to.frame(iframe)
 
@@ -58,15 +59,54 @@ def OnlineCourseSelection_module_select(driver: WebDriver, target: str) -> None:
     active_module_titles = [i.text for i in all_modules if isActiveModule(i)]
 
     if target not in all_module_titles:
-        raise ValueError(f"{target}当前不可用，\n当前存在的菜单项:\n{all_module_titles}\n当前有效的菜单项:\n{active_module_titles}")
-    target_items = [i for i in all_modules if i.text == target][0].find_element(By.CSS_SELECTOR,'div[class="title"]')
+        raise ValueError(
+            f"{target}当前不可用，\n当前存在的菜单项:\n{all_module_titles}\n当前有效的菜单项:\n{active_module_titles}")
+    target_items = [i for i in all_modules if i.text == target][0].find_element(By.CSS_SELECTOR, 'div[class="title"]')
     target_items.click()
 
 
+def getTableElement_as_list(driver: WebDriver) -> list[dict[str, WebElement]]:
+    table = driver.find_element(By.CSS_SELECTOR, 'table')
+    table_title = [i.text for i in table.find_element(By.CSS_SELECTOR, 'thead').find_elements(By.CSS_SELECTOR, 'td')]
+    table_body_items = table.find_element(By.CSS_SELECTOR, 'tbody').find_elements(By.CSS_SELECTOR, 'tr')
+    # for i in table_body_items:
+    #     print(i.text)
+    # items = [ dict(zip(table_title, i.find_elements(By.CSS_SELECTOR, 'td')))  for i in table_body_items]
+    items = []
+    for i in table_body_items:
+        items.append({table_title[j]: i.find_elements(By.CSS_SELECTOR, 'td')[j] for j in range(len(table_title))})
+    theme.Info('Get table element successfully')
+    return items
+
+
+def toContent(table: list[dict[str, WebElement]]) -> list[dict[str, str]]:
+    table_text = [{j: i[j].text for j in i} for i in table]
+    theme.Info('Get table content successfully')
+    return table_text
+
+
+def professionCS(driver: WebDriver):
+    OnlineCourseSelection_module_select(driver, '按开课计划选课')
+
+    iframe = driver.find_element(By.CSS_SELECTOR, 'iframe[id="frmReport"]')
+    driver.switch_to.frame(iframe)
+    table = getTableElement_as_list(driver)
+    # table_text = []
+    # for i in table:
+    #     table_text.append({j: i[j].text for j in i})
+    table_text = toContent(table)
+    for i in table_text:
+        print(i)
+
+
+def generalCS():
+    pass
+
+
 driver = WebDriver_Init(url=url['教务管理']
-                        # , silent=True
+                        , silent=True
                         )
 login(driver)
-OnlineCourseSelection_module_select(driver, target='按开课计划选课')
+professionCS(driver)
 while 1:
     pass
