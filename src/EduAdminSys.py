@@ -48,7 +48,7 @@ def isActiveModule(module: WebElement) -> bool:
     return "baseMode1.png" in module.find_element(By.CSS_SELECTOR, 'img').get_attribute('src')
 
 
-def OnlineCourseSelection(driver: WebDriver, target: str) -> None:
+def OnlineCourseSelection_module_select(driver: WebDriver, target: str) -> None:
     guide(driver, target='网上选课')
     iframe = driver.find_element(By.CSS_SELECTOR, 'iframe[id="frmDesk"]')
     driver.switch_to.frame(iframe)
@@ -58,13 +58,15 @@ def OnlineCourseSelection(driver: WebDriver, target: str) -> None:
     active_module_titles = [i.text for i in all_modules if isActiveModule(i)]
 
     if target not in all_module_titles:
-        raise ValueError(f"{target}当前不可用，\n当前存在的菜单项:\n{all_module_titles}当前有效的菜单项:\n{active_module_titles}")
-    target_items = [i for i in all_modules if i.text == target][0]
+        raise ValueError(f"{target}当前不可用，\n当前存在的菜单项:\n{all_module_titles}\n当前有效的菜单项:\n{active_module_titles}")
+    target_items = [i for i in all_modules if i.text == target][0].find_element(By.CSS_SELECTOR,'div[class="title"]')
     target_items.click()
 
 
 driver = WebDriver_Init(url=url['教务管理']
-                        , silent=True
+                        # , silent=True
                         )
 login(driver)
-OnlineCourseSelection(driver, target='123')
+OnlineCourseSelection_module_select(driver, target='按开课计划选课')
+while 1:
+    pass
