@@ -10,7 +10,7 @@ def Error(text: str):
 
 
 def Info(text: str):
-    print(Fore.CYAN + '[Info]:' + text + Fore.RESET)
+    print(Fore.WHITE + '[Info]:' + text + Fore.RESET)
 
 def Data(text: str):
     print(Fore.LIGHTWHITE_EX + '[Data]:' + text + Fore.RESET)

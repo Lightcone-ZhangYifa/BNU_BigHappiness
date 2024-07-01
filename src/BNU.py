@@ -14,7 +14,7 @@ from typing import Optional
 import time
 from bs4 import BeautifulSoup
 import theme
-
+from requests.compat import urljoin
 url = {
     '教务管理': 'https://onevpn.bnu.edu.cn/http/77726476706e69737468656265737421f3f652d2253e7d1e7b0c9ce29b5b/cas/login?service=http%3A%2F%2Fzyfw.bnu.edu.cn%2F',
     '数字京师': 'https://onevpn.bnu.edu.cn/http/77726476706e69737468656265737421f3f652d2253e7d1e7b0c9ce29b5b/cas/login?service=https%3A%2F%2Fonevpn.bnu.edu.cn%2Flogin%3Fcas_login%3Dtrue',

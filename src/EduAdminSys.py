@@ -12,6 +12,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
 import time
 from bs4 import BeautifulSoup
+from typing import Optional
+from requests.compat import urljoin
 import theme
 from BNU import url, login, WebDriver_Init
 
@@ -65,24 +67,37 @@ def OnlineCourseSelection_module_select(driver: WebDriver, target: str) -> None:
     target_items.click()
 
 
-def getTableElement_as_list(driver: WebDriver) -> list[dict[str, WebElement]]:
-    table = driver.find_element(By.CSS_SELECTOR, 'table')
-    table_title = [i.text for i in table.find_element(By.CSS_SELECTOR, 'thead').find_elements(By.CSS_SELECTOR, 'td')]
-    table_body_items = table.find_element(By.CSS_SELECTOR, 'tbody').find_elements(By.CSS_SELECTOR, 'tr')
-    # for i in table_body_items:
-    #     print(i.text)
-    # items = [ dict(zip(table_title, i.find_elements(By.CSS_SELECTOR, 'td')))  for i in table_body_items]
-    items = []
-    for i in table_body_items:
-        items.append({table_title[j]: i.find_elements(By.CSS_SELECTOR, 'td')[j] for j in range(len(table_title))})
-    theme.Info('Get table element successfully')
-    return items
+def exportCSV(content: list[dict[str:str]], path: Optional[str]=None,encoding:str='gbk') -> None:
+    if not path:
+        path = '../res/course_data.csv'
+    with open(path, mode='wt', encoding=encoding) as f:
+        f.write(','.join([i.replace(',','，') for i in content[0].keys()])+'\n')
+        for i in content:
+            f.write(','.join([j.replace(',','，') for j in i.values()]) + '\n')
+    theme.Info(f'Export csv data to: {os.path.abspath(os.path.join(os.getcwd(),path))}')
 
 
 def toContent(table: list[dict[str, WebElement]]) -> list[dict[str, str]]:
+    # table_text = []
+    # for i in table:
+    #     table_text.append({j: i[j].text for j in i})
     table_text = [{j: i[j].text for j in i} for i in table]
     theme.Info('Get table content successfully')
     return table_text
+
+
+def getTable(driver: WebDriver) -> list[dict[str, WebElement]]:
+    table = driver.find_element(By.CSS_SELECTOR, 'table')
+    table_title = [i.text for i in table.find_element(By.CSS_SELECTOR, 'thead').find_elements(By.CSS_SELECTOR, 'td')]
+    table_body_items = table.find_element(By.CSS_SELECTOR, 'tbody').find_elements(By.CSS_SELECTOR, 'tr')
+
+    # items = []
+    # for i in table_body_items:
+    #     items.append({table_title[j]: i.find_elements(By.CSS_SELECTOR, 'td')[j] for j in range(len(table_title))})
+    items = [{table_title[j]: i.find_elements(By.CSS_SELECTOR, 'td')[j] for j in range(len(table_title))}
+             for i in table_body_items]
+    theme.Info('Get table element successfully')
+    return items
 
 
 def professionCS(driver: WebDriver):
@@ -90,23 +105,27 @@ def professionCS(driver: WebDriver):
 
     iframe = driver.find_element(By.CSS_SELECTOR, 'iframe[id="frmReport"]')
     driver.switch_to.frame(iframe)
-    table = getTableElement_as_list(driver)
-    # table_text = []
-    # for i in table:
-    #     table_text.append({j: i[j].text for j in i})
+
+    table = getTable(driver)
+    print(table)
     table_text = toContent(table)
+    print(table_text)
     for i in table_text:
         print(i)
+    table_text = toContent(table)
+    exportCSV(table_text)
 
+    driver.switch_to.default_content()
 
 def generalCS():
     pass
 
 
 driver = WebDriver_Init(url=url['教务管理']
-                        , silent=True
+                        # , silent=True
                         )
 login(driver)
 professionCS(driver)
 while 1:
     pass
+driver.quit()

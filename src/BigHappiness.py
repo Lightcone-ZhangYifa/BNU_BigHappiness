@@ -15,7 +15,7 @@ def BigHappiness():
     BNU.login(driver=driver)
     driver.get(url=BNU.url['京师大福'])
     if Spider.current_page == 1 and Spider.current_item == 0:
-        Spider.generateCSV_title()
+        Spider.exportCSV_title()
     Spider.get_all_items(driver)
     print()
     theme.Successfully('-' * 10 + '[  Get all items successfully.  ]' + '-' * 10)

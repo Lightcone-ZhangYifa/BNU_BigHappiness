@@ -114,13 +114,13 @@ def get_page_cnt(driver: WebDriver) -> int:
 #             f.write(','.join([item[label] for label in labels]))
 #
 
-def generateCSV_title() -> None:
+def exportCSV_title() -> None:
     labels = keys
     with open('../res/raw_data.csv', mode='wt', encoding='utf-8') as f:
         f.write(','.join(labels) + '\n')
 
 
-def generateCSV_append_item(item: dict, remove_prifix: bool = False) -> None:
+def exportCSV_append_item(item: dict, remove_prifix: bool = False) -> None:
     labels = keys
     for i in item:
         item[i] = item[i].replace('\n', '')
@@ -172,7 +172,7 @@ def fetch_item(driver: WebDriver, page: int, item: int) -> None:
         item_list = driver.find_elements(By.CSS_SELECTOR, "div[class='purchase-con push-down-20']")
         single_item = get_single_item(driver, item_list[item])
         if single_item:
-            generateCSV_append_item(single_item, remove_prifix=remove_prifix)
+            exportCSV_append_item(single_item, remove_prifix=remove_prifix)
             current_item = (item + 1) % len(item_list)
             current_page = (item + 1) // len(item_list) + page
             write_config(current_page, current_item)
