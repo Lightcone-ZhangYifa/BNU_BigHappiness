@@ -28,6 +28,8 @@ menu_titles = ['学籍档案',
                '毕业事宜',
                '电子证明']
 
+OnlineCourseSelection_modules = []
+
 
 def guide(driver: WebDriver, target: str) -> None:
     global menu_titles
@@ -38,10 +40,31 @@ def guide(driver: WebDriver, target: str) -> None:
         raise ValueError(f"{target}不在菜单中，请在下列中选择存在的菜单项:\n{menu_titles}")
     # for i in menu_items:
     #     print(i.text)
-    target_items = [i for i in menu_items if i.text==target][0]
+    target_items = [i for i in menu_items if i.text == target][0]
     target_items.click()
 
 
-driver = WebDriver_Init(url=url['教务管理'])
+def isActiveModule(module: WebElement) -> bool:
+    return "baseMode1.png" in module.find_element(By.CSS_SELECTOR, 'img').get_attribute('src')
+
+
+def OnlineCourseSelection(driver: WebDriver, target: str) -> None:
+    guide(driver, target='网上选课')
+    iframe = driver.find_element(By.CSS_SELECTOR, 'iframe[id="frmDesk"]')
+    driver.switch_to.frame(iframe)
+
+    all_modules = driver.find_elements(By.CSS_SELECTOR, 'div[class="module"]')
+    all_module_titles = [i.text for i in all_modules]
+    active_module_titles = [i.text for i in all_modules if isActiveModule(i)]
+
+    if target not in all_module_titles:
+        raise ValueError(f"{target}当前不可用，\n当前存在的菜单项:\n{all_module_titles}当前有效的菜单项:\n{active_module_titles}")
+    target_items = [i for i in all_modules if i.text == target][0]
+    target_items.click()
+
+
+driver = WebDriver_Init(url=url['教务管理']
+                        , silent=True
+                        )
 login(driver)
-guide(driver, target='网上选课')
+OnlineCourseSelection(driver, target='123')
