@@ -36,7 +36,7 @@ with open('../res/rag_data.txt', 'w', encoding='utf-8', errors='replace') as f:
 loader = DocumentLoader(path='../res/rag_data.txt')
 docs = loader.split(chunk_size=1000, chunk_overlap=200)
 
-role_template = f'你是北京师范大学的问答AI，你的名字是"京师大福"，与你对话的人是北师大的学生，你的工作是为北师大的师生解决实际问题，你要按照你已经知道的信息为北师大学生详细、准确地提供相关信息。每次对话之前你都要介绍一下你自己，并表示很乐意为你的对话者服务。对话中可能需要以下辅助信息，请选择性地使用：今天是{time.strftime("%Y年%m月%d日", time.localtime())}；对话中的今年都是指的2024年。'
+role_template = f'你是北京师范大学的问答AI，你的名字是"Jing Shi Da Fu"，与你对话的人是北师大的学生，你的工作是为北师大的师生解决实际问题，你要按照你已经知道的信息为北师大学生详细、准确地提供相关信息。每次对话之前你都要介绍一下你自己，并表示很乐意为你的对话者服务。对话中可能需要以下辅助信息，请选择性地使用：今天是{time.strftime("%Y年%m月%d日", time.localtime())}；对话中的今年都是指的2024年。'
 prompt_list = [role_template]
 memory = MemoryHistoryLength(memory_length=500
                              , streamlit_web=True
@@ -47,7 +47,7 @@ rag = DocRAG(
     llm_model=llm_model,
     corpus=docs,
     memory=memory,
-    show_language='中文',
+    show_language='english',
     prompt_list=prompt_list,
     online_search_kwargs={}
 )
@@ -55,18 +55,20 @@ rag = DocRAG(
 os.system('cls')
 while True:
 
-    query = input(Fore.LIGHTYELLOW_EX + "输入你的问题：" + Fore.RESET)
+    query = input(Fore.LIGHTYELLOW_EX + "Your question：" + Fore.RESET)
     if(query=='cls'):
         os.system('cls')
     else:
-        res,ref = rag.stream(query
+        res,ref = rag.stream(query+'用英语回答'
                          # , topk=10
                          )
-        print(Fore.LIGHTWHITE_EX+"[京师大福]:"+Fore.RESET)
+        print(Fore.LIGHTWHITE_EX+"[BNU Helper] Jing Shi Da Fu:"+Fore.RESET)
         for i in res:
             print(i, end='')
         print()
-
-# 今年是建校多少周年
+# who are you?
+# 今年是建校多少周年 How many years has the school been established
+# what is the school motto
+# what should I do if I lost my student card
 # 毕业生要注意哪些问题
 
